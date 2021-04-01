@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.client.RestTemplate;
 import javax.validation.Valid;
@@ -48,12 +49,15 @@ public class PollController {
     private static final Logger logger = LoggerFactory.getLogger(PollController.class);
     
     private final RestTemplate externalws = new RestTemplate();
+    
+    @Value("${remote.service.endpoint:https://quoters.apps.pcfone.io/api/random}")
+    private String endpointUrl;
 
     @GetMapping
     public PagedResponse<PollResponse> getPolls(@CurrentUser UserPrincipal currentUser,
                                                 @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                 @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        ResponseEntity<String> result = externalws.getForEntity("https://quoters.apps.pcfone.io/api/random", String.class, Collections.emptyMap());
+        ResponseEntity<String> result = externalws.getForEntity(endpointUrl, String.class, Collections.emptyMap());
         try {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode root = mapper.readTree(result.getBody());
