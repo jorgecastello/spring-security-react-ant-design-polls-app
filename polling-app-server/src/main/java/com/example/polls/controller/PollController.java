@@ -61,10 +61,10 @@ public class PollController {
                 System.out.println(result);
     
                 if (HttpStatus.OK.equals(result.getStatusCode()) && success.asBoolean()) {
-                    System.out.println(rootNode.path("value").path("quote").textValue());
+                    System.out.println(root.path("value").path("quote").textValue());
                 } 
         } catch(JsonProcessingException ex) {
-                System.err.println("Error processing reCaptcha response: {}", ex.getMessage());
+                System.err.printf("Error processing reCaptcha response: {}\n", ex.getMessage());
         }
         return pollService.getAllPolls(currentUser, page, size);
     }
