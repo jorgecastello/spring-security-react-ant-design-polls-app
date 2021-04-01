@@ -16,8 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.client.RestTemplate;
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Collections;
 
 /**
  * Created by rajeevkumarsingh on 20/11/17.
@@ -40,11 +42,15 @@ public class PollController {
     private PollService pollService;
 
     private static final Logger logger = LoggerFactory.getLogger(PollController.class);
+    
+    private final RestTemplate externalws = new RestTemplate();
 
     @GetMapping
     public PagedResponse<PollResponse> getPolls(@CurrentUser UserPrincipal currentUser,
                                                 @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                 @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+        String result = externalws.getForObject("https://quoters.apps.pcfone.io/api/random", String.class, Collections.emptyMap());
+        System.out.println(result);
         return pollService.getAllPolls(currentUser, page, size);
     }
 
