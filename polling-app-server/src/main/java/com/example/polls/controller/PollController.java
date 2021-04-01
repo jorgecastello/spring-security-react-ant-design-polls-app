@@ -12,6 +12,7 @@ import com.example.polls.util.AppConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,9 @@ import org.springframework.web.client.RestTemplate;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.Collections;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Created by rajeevkumarsingh on 20/11/17.
@@ -49,8 +53,19 @@ public class PollController {
     public PagedResponse<PollResponse> getPolls(@CurrentUser UserPrincipal currentUser,
                                                 @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                 @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        String result = externalws.getForObject("https://quoters.apps.pcfone.io/api/random", String.class, Collections.emptyMap());
-        System.out.println(result);
+        ResponseEntity<String> result = externalws.getForEntity("https://quoters.apps.pcfone.io/api/random", String.class, Collections.emptyMap());
+        try {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(result.getBody());
+                JsonNode success = root.path("type");
+                System.out.println(result);
+    
+                if (HttpStatus.OK.equals(result.getStatusCode()) && success.asBoolean()) {
+                    System.out.println(rootNode.path("value").path("quote").textValue());
+                } 
+        } catch(JsonProcessingException ex) {
+                System.err.println("Error processing reCaptcha response: {}", ex.getMessage());
+        }
         return pollService.getAllPolls(currentUser, page, size);
     }
 
