@@ -60,7 +60,7 @@ public class PollController {
                 JsonNode success = root.path("type");
                 System.out.println(result);
     
-                if (HttpStatus.OK.equals(result.getStatusCode()) && success.asBoolean()) {
+                if (HttpStatus.OK.equals(result.getStatusCode()) && "success".equals(success.textValue())) {
                     System.out.println(root.path("value").path("quote").textValue());
                 } 
         } catch(JsonProcessingException ex) {
